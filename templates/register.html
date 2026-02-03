@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppleBox - Register</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d3d;
+            --border-color: #444;
+            --text-color: #fff;
+            --text-muted: #888;
+            --accent-color: #7289da;
+            --accent-hover: #5c6fb1;
+            --input-bg: #3d3d4d;
+            --danger-color: #f04747;
+            --success-color: #43b581;
+            --warning-color: #faa61a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .register-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            border: 1px solid var(--border-color);
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .register-logo {
+            width: 72px;
+            height: 72px;
+            background: linear-gradient(135deg, var(--accent-color), #5865f2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 32px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(114, 137, 218, 0.3);
+        }
+
+        .register-header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .register-header p {
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .alert {
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-error {
+            background: rgba(240, 71, 71, 0.15);
+            border: 1px solid rgba(240, 71, 71, 0.3);
+            color: var(--danger-color);
+        }
+
+        .alert-success {
+            background: rgba(67, 181, 129, 0.15);
+            border: 1px solid rgba(67, 181, 129, 0.3);
+            color: var(--success-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .form-label .optional {
+            font-weight: normal;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 14px 14px 44px;
+            background: var(--input-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 15px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 4px rgba(114, 137, 218, 0.15);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Password Strength */
+        .password-strength {
+            margin-top: 10px;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-fill.weak { width: 25%; background: var(--danger-color); }
+        .strength-fill.fair { width: 50%; background: var(--warning-color); }
+        .strength-fill.good { width: 75%; background: #43b581; }
+        .strength-fill.strong { width: 100%; background: var(--success-color); }
+
+        .strength-text {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .register-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .register-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(114, 137, 218, 0.3);
+        }
+
+        .register-btn:active {
+            transform: translateY(0);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 28px 0;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .divider span {
+            padding: 0 16px;
+        }
+
+        .login-link {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 15px;
+        }
+
+        .login-link a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .terms {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 16px;
+            line-height: 1.5;
+        }
+
+        .terms a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .shortcut-hint {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .shortcut-hint kbd {
+            background: var(--input-bg);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 11px;
+        }
+
+        @media (max-width: 480px) {
+            .register-card {
+                padding: 30px 24px;
+            }
+
+            .register-header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-card">
+            <div class="register-header">
+                <div class="register-logo">
+                    <i class="fas fa-apple-whole"></i>
+                </div>
+                <h1>Create an account</h1>
+                <p>Join AppleBox today!</p>
+            </div>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{% if 'success' in message|lower %}success{% else %}error{% endif %}">
+                        <i class="fas fa-{% if 'success' in message|lower %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" name="username" class="form-input" placeholder="Choose a username" required autofocus>
+                    </div>
+                    <p class="form-hint">This will be your unique identifier</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Display Name <span class="optional">(optional)</span></label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-id-card"></i>
+                        <input type="text" name="display_name" class="form-input" placeholder="How should we call you?">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" name="password" id="password" class="form-input" placeholder="Create a strong password" required>
+                    </div>
+                    <div class="password-strength">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strength-fill"></div>
+                        </div>
+                        <span class="strength-text" id="strength-text">Password strength</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="register-btn">
+                    <i class="fas fa-user-plus"></i>
+                    Create Account
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>or</span>
+            </div>
+
+            <p class="login-link">
+                Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+            </p>
+
+            <p class="terms">
+                By registering, you agree to our community guidelines and terms of service.
+            </p>
+        </div>
+
+        <p class="shortcut-hint">
+            <kbd>Ctrl</kbd> + <kbd>X</kbd> for emergency exit
+        </p>
+    </div>
+
+    <script>
+        // Password strength indicator
+        document.getElementById('password').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const fill = document.getElementById('strength-fill');
+            const text = document.getElementById('strength-text');
+
+            let strength = 0;
+            if (password.length >= 6) strength++;
+            if (password.length >= 10) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+            fill.className = 'strength-fill';
+            if (strength === 0) {
+                fill.style.width = '0';
+                text.textContent = 'Password strength';
+            } else if (strength <= 2) {
+                fill.classList.add('weak');
+                text.textContent = 'Weak';
+            } else if (strength === 3) {
+                fill.classList.add('fair');
+                text.textContent = 'Fair';
+            } else if (strength === 4) {
+                fill.classList.add('good');
+                text.textContent = 'Good';
+            } else {
+                fill.classList.add('strong');
+                text.textContent = 'Strong';
+            }
+        });
+
+        // Emergency exit
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'x') {
+                e.preventDefault();
+                window.location.href = 'https://classroom.google.com';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+{"reporter": "CreeperCast5008", "type": "dm", "message_text": "${escapeQuotes(message.text)}", "sender": "${message.sender}", "recipient": "CreeperCast500", "reason": "H", "timestamp": "2025-12-10 12:36 PM"}

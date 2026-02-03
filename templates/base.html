@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AppleBox{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --header-bg: #1e1e2e;
+            --card-bg: #2d2d3d;
+            --sidebar-bg: #1a1a2e;
+            --border-color: #444;
+            --text-color: #fff;
+            --text-muted: #888;
+            --tab-active-bg: #3d3d4d;
+            --accent-color: #7289da;
+            --accent-hover: #5c6fb1;
+            --success-color: #43b581;
+            --danger-color: #f04747;
+            --warning-color: #faa61a;
+            --bg-color: #1a1a1a;
+            --input-bg: #3d3d4d;
+            --message-bg: #3d3d3d;
+            --online-color: #43b581;
+            --away-color: #faa61a;
+            --offline-color: #747f8d;
+            --theme-bg-image: none;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.2);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-full: 9999px;
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.25s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-color);
+            background-image: var(--theme-bg-image);
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            min-height: 100vh;
+            line-height: 1.6;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: color var(--transition-fast);
+        }
+
+        a:hover {
+            color: var(--accent-hover);
+            text-decoration: underline;
+        }
+
+        /* Main Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 72px;
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-color);
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: border-radius var(--transition-normal);
+        }
+
+        .sidebar-logo:hover {
+            border-radius: var(--radius-md);
+        }
+
+        .sidebar-divider {
+            width: 32px;
+            height: 2px;
+            background: var(--border-color);
+            margin: 8px 0;
+            border-radius: 1px;
+        }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .sidebar-item {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            background: var(--card-bg);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            color: var(--text-muted);
+        }
+
+        .sidebar-item:hover,
+        .sidebar-item.active {
+            background: var(--accent-color);
+            border-radius: var(--radius-lg);
+            color: white;
+        }
+
+        .sidebar-item .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--danger-color);
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            min-width: 18px;
+            height: 18px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+        }
+
+        .sidebar-tooltip {
+            position: absolute;
+            left: 70px;
+            background: #111;
+            color: white;
+            padding: 8px 12px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-fast);
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .sidebar-tooltip::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 6px solid transparent;
+            border-right-color: #111;
+        }
+
+        .sidebar-item:hover .sidebar-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 72px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            background: var(--header-bg);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background:var(--input-bg);
+            padding:5px;
+            border-bottom-color:  var(--accent-color);
+            border-bottom:  2px solid ;
+            border-radius:10px;
+        }
+
+        .header-title i {
+            color: var(--text-muted);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-search {
+            position: relative;
+        }
+
+        .header-search input {
+            background: var(--input-bg);
+            border: none;
+            padding: 8px 12px 8px 36px;
+            border-radius: var(--radius-md);
+            color: var(--text-color);
+            width: 200px;
+            transition: width var(--transition-normal);
+        }
+
+        .header-search input:focus {
+            outline: none;
+            width: 280px;
+        }
+
+        .header-search i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            margin-top: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background: var(--tab-active-bg);
+        }
+
+        .search-result-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .search-result-info {
+            flex: 1;
+        }
+
+        .search-result-name {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        .search-result-role {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .search-no-results {
+            padding: 16px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-full);
+            background: var(--input-bg);
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+            position: relative;
+        }
+
+        .header-btn:hover {
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .header-btn .badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: var(--danger-color);
+            color: white;
+            font-size: 10px;
+            min-width: 16px;
+            height: 16px;
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Notifications Dropdown */
+        .notifications-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            width: 360px;
+            max-height: 400px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px) scale(0.95);
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                        visibility 0.3s;
+            z-index: 1000;
+        }
+
+        .notifications-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+        }
+
+        .notifications-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .notifications-list {
+            overflow-y: auto;
+            max-height: 320px;
+        }
+
+        .notification-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .notification-item:hover {
+            background: var(--input-bg);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
+            object-fit: cover;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-text {
+            font-size: 14px;
+            margin-bottom: 4px;
+            line-height: 1.5;
+            letter-spacing: 0.2px;
+        }
+
+        .notification-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .notification-actions .btn {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .notifications-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
+
+        .notifications-empty i {
+            font-size: 48px;
+            opacity: 0.3;
+            margin-bottom: 12px;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 12px 6px 6px;
+            background: var(--input-bg);
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+
+        .user-menu:hover {
+            background: var(--card-bg);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            object-fit: cover;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        .user-status {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: var(--radius-full);
+            background: var(--online-color);
+        }
+
+        .status-dot.away { background: var(--warning-color); }
+        .status-dot.offline { background: var(--offline-color); }
+
+        /* Page Content */
+        .page-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            transition: all var(--transition-fast);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
+            line-height: 1.4;
+        }
+
+        .card-title i {
+            color: var(--accent-color);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: var(--radius-full);
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--card-bg);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: black;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: var(--radius-md);
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--text-muted);
+            font-size: 14px;
+            letter-spacing: 0.3px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-color);
+            font-size: 14px;
+            transition: all var(--transition-fast);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(114, 137, 218, 0.2);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        textarea.form-input {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow-lg);
+            animation: slideIn 0.3s ease;
+            min-width: 300px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .toast.success { border-left-color: var(--success-color); }
+        .toast.error { border-left-color: var(--danger-color); }
+        .toast.warning { border-left-color: var(--warning-color); }
+
+        .toast-icon {
+            font-size: 20px;
+        }
+
+        .toast.success .toast-icon { color: var(--success-color); }
+        .toast.error .toast-icon { color: var(--danger-color); }
+        .toast.warning .toast-icon { color: var(--warning-color); }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .toast-message {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-normal);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            max-width: 500px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform var(--transition-normal);
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-full);
+            background: var(--input-bg);
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* Keyboard Shortcuts */
+        kbd {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 2px 6px;
+            font-size: 12px;
+            font-family: monospace;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                position: fixed;
+                bottom: 0;
+                top: auto;
+                padding: 8px;
+                justify-content: space-around;
+                border-right: none;
+                border-top: 1px solid var(--border-color);
+            }
+
+            .sidebar-logo,
+            .sidebar-divider,
+            .sidebar-tooltip {
+                display: none;
+            }
+
+            .sidebar-nav {
+                flex-direction: row;
+                gap: 4px;
+            }
+
+            .sidebar-bottom {
+                flex-direction: row;
+                margin-top: 0;
+            }
+
+            .sidebar-item {
+                width: 44px;
+                height: 44px;
+            }
+
+            .main-content {
+                margin-left: 0;
+                margin-bottom: 68px;
+            }
+
+            .header {
+                padding: 12px 16px;
+            }
+
+            .header-search {
+                display: none;
+            }
+
+            .user-info {
+                display: none;
+            }
+
+            .page-content {
+                padding: 16px;
+            }
+        }
+
+        {% block extra_styles %}{% endblock %}
+    </style>
+    <script>
+        const themes = {
+            default: {
+                '--header-bg': '#1e1e2e',
+                '--card-bg': '#2d2d3d',
+                '--sidebar-bg': '#1a1a2e',
+                '--border-color': '#444',
+                '--text-color': '#fff',
+                '--tab-active-bg': '#3d3d4d',
+                '--accent-color': '#7289da',
+                '--accent-hover': '#5c6fb1',
+                '--bg-color': '#1a1a1a',
+                '--input-bg': '#3d3d4d',
+                '--message-bg': '#3d3d3d',
+                '--theme-bg-image': 'none'
+            },
+            ocean: {
+                '--header-bg': '#1a4b84',
+                '--card-bg': '#2d89c8',
+                '--sidebar-bg': '#0d3a6a',
+                '--border-color': '#3d99d8',
+                '--text-color': '#fff',
+                '--tab-active-bg': '#4da9e8',
+                '--accent-color': '#00c3ff',
+                '--accent-hover': '#20d3ff',
+                '--bg-color': '#0a2540',
+                '--input-bg': '#1a5b94',
+                '--message-bg': '#4da9e8',
+                '--theme-bg-image': 'none'
+            },
+            forest: {
+                '--header-bg': '#2d5a27',
+                '--card-bg': '#45894d',
+                '--sidebar-bg': '#1d4a17',
+                '--border-color': '#55995d',
+                '--text-color': '#fff',
+                '--tab-active-bg': '#65a96d',
+                '--accent-color': '#7ab973',
+                '--accent-hover': '#8ac983',
+                '--bg-color': '#1a3a15',
+                '--input-bg': '#3d6a37',
+                '--message-bg': '#65a96d',
+                '--theme-bg-image': 'none'
+            },
+            sunset: {
+                '--header-bg': '#cb2d3e',
+                '--card-bg': '#ef473a',
+                '--sidebar-bg': '#a11d2e',
+                '--border-color': '#ff574a',
+                '--text-color': '#fff',
+                '--tab-active-bg': '#ff675a',
+                '--accent-color': '#ff776a',
+                '--accent-hover': '#ff877a',
+                '--bg-color': '#8b1d2e',
+                '--input-bg': '#db3d4e',
+                '--message-bg': '#ff675a',
+                '--theme-bg-image': 'none'
+            },
+            midnight: {
+                '--header-bg': '#232526',
+                '--card-bg': '#414345',
+                '--sidebar-bg': '#131415',
+                '--border-color': '#515355',
+                '--text-color': '#fff',
+                '--tab-active-bg': '#616365',
+                '--accent-color': '#717375',
+                '--accent-hover': '#818385',
+                '--bg-color': '#0d0d0d',
+                '--input-bg': '#313335',
+                '--message-bg': '#616365',
+                '--theme-bg-image': 'none'
+            },
+            light: {
+                '--header-bg': '#ffffff',
+                '--card-bg': '#f5f5f5',
+                '--sidebar-bg': '#e8e8e8',
+                '--border-color': '#ddd',
+                '--text-color': '#333',
+                '--text-muted': '#666',
+                '--tab-active-bg': '#e0e0e0',
+                '--accent-color': '#5865f2',
+                '--accent-hover': '#4752c4',
+                '--bg-color': '#ffffff',
+                '--input-bg': '#f0f0f0',
+                '--message-bg': '#e8e8e8',
+                '--theme-bg-image': 'none'
+            },
+            purple: {
+                '--header-bg': '#2d1b4e',
+                '--card-bg': '#3d2b5e',
+                '--sidebar-bg': '#1d0b3e',
+                '--border-color': '#5d4b7e',
+                '--text-color': '#fff',
+                '--tab-active-bg': '#4d3b6e',
+                '--accent-color': '#9b59b6',
+                '--accent-hover': '#8e44ad',
+                '--bg-color': '#1a0f2e',
+                '--input-bg': '#3d2b5e',
+                '--message-bg': '#4d3b6e',
+                '--theme-bg-image': 'none'
+            },
+            nord: {
+                '--header-bg': '#2e3440',
+                '--card-bg': '#3b4252',
+                '--sidebar-bg': '#2e3440',
+                '--border-color': '#4c566a',
+                '--text-color': '#eceff4',
+                '--text-muted': '#d8dee9',
+                '--tab-active-bg': '#434c5e',
+                '--accent-color': '#88c0d0',
+                '--accent-hover': '#81a1c1',
+                '--bg-color': '#2e3440',
+                '--input-bg': '#3b4252',
+                '--message-bg': '#434c5e',
+                '--theme-bg-image': 'none'
+            },
+            dracula: {
+                '--header-bg': '#282a36',
+                '--card-bg': '#44475a',
+                '--sidebar-bg': '#1e1f29',
+                '--border-color': '#6272a4',
+                '--text-color': '#f8f8f2',
+                '--text-muted': '#6272a4',
+                '--tab-active-bg': '#44475a',
+                '--accent-color': '#bd93f9',
+                '--accent-hover': '#ff79c6',
+                '--bg-color': '#282a36',
+                '--input-bg': '#44475a',
+                '--message-bg': '#44475a',
+                '--theme-bg-image': 'none'
+            },
+            monokai: {
+                '--header-bg': '#272822',
+                '--card-bg': '#3e3d32',
+                '--sidebar-bg': '#1e1f1c',
+                '--border-color': '#49483e',
+                '--text-color': '#f8f8f2',
+                '--text-muted': '#75715e',
+                '--tab-active-bg': '#49483e',
+                '--accent-color': '#66d9ef',
+                '--accent-hover': '#a6e22e',
+                '--bg-color': '#272822',
+                '--input-bg': '#3e3d32',
+                '--message-bg': '#49483e',
+                '--theme-bg-image': 'none'
+            },
+            gruvbox: {
+                '--header-bg': '#282828',
+                '--card-bg': '#3c3836',
+                '--sidebar-bg': '#1d2021',
+                '--border-color': '#504945',
+                '--text-color': '#ebdbb2',
+                '--text-muted': '#a89984',
+                '--tab-active-bg': '#504945',
+                '--accent-color': '#8ec07c',
+                '--accent-hover': '#b8bb26',
+                '--bg-color': '#282828',
+                '--input-bg': '#3c3836',
+                '--message-bg': '#504945',
+                '--theme-bg-image': 'none'
+            },
+            solarized: {
+                '--header-bg': '#002b36',
+                '--card-bg': '#073642',
+                '--sidebar-bg': '#001e27',
+                '--border-color': '#586e75',
+                '--text-color': '#fdf6e3',
+                '--text-muted': '#93a1a1',
+                '--tab-active-bg': '#073642',
+                '--accent-color': '#268bd2',
+                '--accent-hover': '#2aa198',
+                '--bg-color': '#002b36',
+                '--input-bg': '#073642',
+                '--message-bg': '#073642',
+                '--theme-bg-image': 'none'
+            }
+        };
+
+        function applyTheme(themeName) {
+            const theme = themes[themeName];
+            if (!theme) return;
+            for (const [property, value] of Object.entries(theme)) {
+                document.documentElement.style.setProperty(property, value);
+            }
+            localStorage.setItem('selectedTheme', themeName);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('selectedTheme') || 'default';
+            applyTheme(savedTheme);
+        });
+
+        // Toast notifications
+        function showToast(message, type = 'success', title = '') {
+            const container = document.getElementById('toast-container') || createToastContainer();
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+
+            toast.innerHTML = `
+                <i class="fas ${icons[type] || icons.info} toast-icon"></i>
+                <div class="toast-content">
+                    ${title ? `<div class="toast-title">${title}</div>` : ''}
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function createToastContainer() {
+            const container = document.createElement('div');
+            container.id = 'toast-container';
+            container.className = 'toast-container';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+K - Focus search
+            if (e.ctrlKey && e.key === 'k') {
+                e.preventDefault();
+                const search = document.querySelector('.header-search input');
+                if (search) search.focus();
+            }
+            // Ctrl+X - Emergency escape (classroom.google.com)
+            if (e.ctrlKey && e.key === 'x') {
+                e.preventDefault();
+                window.location.href = 'https://classroom.google.com';
+            }
+            // Escape - Close modal
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(m => {
+                    m.classList.remove('active');
+                });
+                document.body.style.overflow = '';
+            }
+            // ? - Show keyboard shortcuts
+            if (e.key === '?' && !e.target.matches('input, textarea')) {
+                e.preventDefault();
+                openModal('shortcuts-modal');
+            }
+        });
+
+        // Notifications dropdown toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const notificationsBtn = document.getElementById('notifications-btn');
+            const notificationsDropdown = document.getElementById('notifications-dropdown');
+
+            if (notificationsBtn && notificationsDropdown) {
+                notificationsBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    notificationsDropdown.classList.toggle('active');
+                    if (notificationsDropdown.classList.contains('active')) {
+                        loadLocalNotifications();
+                    }
+                });
+
+                // Close when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!notificationsBtn.contains(e.target) && !notificationsDropdown.contains(e.target)) {
+                        notificationsDropdown.classList.remove('active');
+                    }
+                });
+            }
+
+            // Update badge on load
+            updateNotificationBadge();
+        });
+
+        function loadLocalNotifications() {
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            const container = document.getElementById('notifications-list-container');
+            if (!container) return;
+
+            if (notifications.length === 0 && !container.querySelector('.notification-item')) {
+                return; // Keep server-rendered notifications
+            }
+
+            // Prepend local notifications
+            const localNotifs = notifications.map(n => {
+                const timeAgo = getTimeAgo(new Date(n.timestamp));
+                return `
+                    <div class="notification-item" onclick="markNotificationRead('${n.timestamp}')">
+                        <i class="fas fa-${n.type === 'dm' ? 'envelope' : 'at'}" style="font-size: 24px; color: var(--accent-color); width: 40px; text-align: center;"></i>
+                        <div class="notification-content">
+                            <div class="notification-text">
+                                <strong>${n.sender}</strong> ${n.action}
+                            </div>
+                            <div class="notification-time">${timeAgo}</div>
+                            ${n.preview ? `<div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">${n.preview}...</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const firstItem = container.querySelector('.notification-item');
+            if (firstItem && localNotifs) {
+                firstItem.insertAdjacentHTML('beforebegin', localNotifs);
+            }
+        }
+
+        function markNotificationRead(timestamp) {
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            const updated = notifications.map(n => {
+                if (n.timestamp === timestamp) n.read = true;
+                return n;
+            });
+            localStorage.setItem('notifications', JSON.stringify(updated));
+            updateNotificationBadge();
+        }
+
+        function updateNotificationBadge() {
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            const unread = notifications.filter(n => !n.read).length;
+            const badge = document.querySelector('#notifications-btn .badge');
+
+            const friendRequests = {{ friend_requests|default([])|length }};
+            const total = unread + friendRequests;
+
+            if (total > 0) {
+                if (!badge) {
+                    const newBadge = document.createElement('span');
+                    newBadge.className = 'badge';
+                    newBadge.textContent = total;
+                    document.getElementById('notifications-btn').appendChild(newBadge);
+                } else {
+                    badge.textContent = total;
+                }
+            } else if (badge) {
+                badge.remove();
+            }
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            if (seconds < 60) return 'Just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
+
+        function closeNotifications() {
+            const notificationsDropdown = document.getElementById('notifications-dropdown');
+            if (notificationsDropdown) {
+                notificationsDropdown.classList.remove('active');
+            }
+        }
+
+        // Global user search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('global-search');
+            const searchResults = document.getElementById('search-results');
+            let searchTimeout;
+
+            if (searchInput && searchResults) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    const query = this.value.trim();
+
+                    if (query.length < 2) {
+                        searchResults.style.display = 'none';
+                        return;
+                    }
+
+                    searchTimeout = setTimeout(() => {
+                        fetch(`/api/search_users?q=${encodeURIComponent(query)}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.users && data.users.length > 0) {
+                                    searchResults.innerHTML = data.users.map(user => `
+                                        <div class="search-result-item" onclick="window.location.href='/profile/${user.username}'">
+                                            <img src="${user.profile_pic || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user.username}" 
+                                                 alt="${user.display_name}" class="search-result-avatar">
+                                            <div class="search-result-info">
+                                                <div class="search-result-name">${user.display_name}</div>
+                                                <div class="search-result-role">${user.role}</div>
+                                            </div>
+                                        </div>
+                                    `).join('');
+                                    searchResults.style.display = 'block';
+                                } else {
+                                    searchResults.innerHTML = '<div class="search-no-results">No users found</div>';
+                                    searchResults.style.display = 'block';
+                                }
+                            })
+                            .catch(() => {
+                                searchResults.style.display = 'none';
+                            });
+                    }, 300);
+                });
+
+                // Hide search results when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                        searchResults.style.display = 'none';
+                    }
+                });
+
+                // Clear search on escape
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        this.value = '';
+                        searchResults.style.display = 'none';
+                        this.blur();
+                    }
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="app-container">
+        {% block sidebar %}
+        <aside class="sidebar">
+            <div class="sidebar-logo" onclick="window.location.href='{{ url_for('home') }}'">
+                <i class="fas fa-apple-whole"></i>
+            </div>
+            <div class="sidebar-divider"></div>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('home') }}" class="sidebar-item {% if request.endpoint == 'home' %}active{% endif %}">
+                    <i class="fas fa-home"></i>
+                    <span class="sidebar-tooltip">Home</span>
+                </a>
+                <a href="{{ url_for('channel', room='general') }}" class="sidebar-item">
+                    <i class="fas fa-hashtag"></i>
+                    <span class="sidebar-tooltip">General</span>
+                </a>
+                <a href="{{ url_for('channel', room='random') }}" class="sidebar-item">
+                    <i class="fas fa-dice"></i>
+                    <span class="sidebar-tooltip">Random</span>
+                </a>
+                <a href="{{ url_for('channel', room='support') }}" class="sidebar-item">
+                    <i class="fas fa-life-ring"></i>
+                    <span class="sidebar-tooltip">Support</span>
+                </a>
+                {% if current_user.role in ['Developer', 'Owner', 'Co-owner', 'Admin'] %}
+                <a href="{{ url_for('channel', room='admin') }}" class="sidebar-item">
+                    <i class="fas fa-life-ring"></i>
+                    <span class="sidebar-tooltip">admin</span>
+                </a>
+                {% endif %}
+            </nav>
+            <div class="sidebar-bottom">
+                <div class="sidebar-item" onclick="openModal('shortcuts-modal')">
+                    <i class="fas fa-keyboard"></i>
+                    <span class="sidebar-tooltip">Shortcuts</span>
+                </div>
+                <a href="{{ url_for('logout') }}" class="sidebar-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sidebar-tooltip">Logout</span>
+                </a>
+            </div>
+        </aside>
+        {% endblock %}
+
+        <main class="main-content">
+            {% block header %}
+            <header class="header">
+                <div class="header-left">
+                    <div class="header-title">
+                        {% block header_title %}<i class="fas fa-home"></i> Home{% endblock %}
+                    </div>
+                </div>
+                <div class="header-right">
+                    
+                    <div class="header-search" style="position: relative;">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search users... (Ctrl+K)" id="global-search" autocomplete="off">
+                        <div id="search-results" class="search-dropdown" style="display: none;"></div>
+                    </div>
+                    <div class="sidebar-item" onclick="openModal('themeModal')">
+                    <i class="fas fa-palette"></i>
+                    <span class="sidebar-tooltip">Themes</span>
+                    </div>
+                    <div class="header-actions">
+                        <div style="position: relative;">
+                            <button class="header-btn" id="notifications-btn" title="Notifications">
+                                <i class="fas fa-bell"></i>
+                                {% if friend_requests|default([])|length > 0 %}
+                                <span class="badge">{{ friend_requests|length }}</span>
+                                {% endif %}
+                            </button>
+                            <div class="notifications-dropdown" id="notifications-dropdown">
+                                <div class="notifications-header">
+                                    <span>Notifications</span>
+                                    <button class="header-btn btn-sm" onclick="closeNotifications()" style="width: 24px; height: 24px;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="notifications-list" id="notifications-list-container">
+                                    {% if friend_requests|default([])|length > 0 %}
+                                        {% for request in friend_requests %}
+                                        <div class="notification-item">
+                                            <img src="{{ users[request]['profile_pic'] or 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + request }}" 
+                                                 alt="{{ users[request]['display_name'] }}" class="notification-avatar">
+                                            <div class="notification-content">
+                                                <div class="notification-text">
+                                                    <strong>{{ users[request]['display_name'] }}</strong> sent you a friend request
+                                                </div>
+                                                <div class="notification-time">Just now</div>
+                                            </div>
+                                            <div class="notification-actions">
+                                                <form method="POST" action="{{ url_for('respond_friend_request') }}" style="display: inline;">
+                                                    <input type="hidden" name="requester" value="{{ request }}">
+                                                    <input type="hidden" name="action" value="accept">
+                                                    <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                                                </form>
+                                                <form method="POST" action="{{ url_for('respond_friend_request') }}" style="display: inline;">
+                                                    <input type="hidden" name="requester" value="{{ request }}">
+                                                    <input type="hidden" name="action" value="decline">
+                                                    <button type="submit" class="btn btn-secondary btn-sm">Decline</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    {% else %}
+                                        <div class="notifications-empty">
+                                            <i class="fas fa-bell-slash"></i>
+                                            <div>No notifications</div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="user-menu" onclick="window.location.href='{{ url_for('view_profile', username=current_user.id) }}'">
+                        <img src="{{ users[current_user.id]['profile_pic'] or 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + current_user.id }}" alt="Avatar" class="user-avatar">
+                        <div class="user-info">
+                            <span class="user-name">{{ current_user.display_name }}</span>
+                            <span class="user-status">
+                                <span class="status-dot"></span>
+                                Online
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            {% endblock %}
+
+            <div class="page-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div class="modal-overlay" id="shortcuts-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-keyboard"></i> Keyboard Shortcuts</h3>
+                <button class="modal-close" onclick="closeModal('shortcuts-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Focus search</span>
+                        <span><kbd>Ctrl</kbd> + <kbd>K</kbd></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Emergency exit</span>
+                        <span><kbd>Ctrl</kbd> + <kbd>X</kbd></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Close modal</span>
+                        <span><kbd>Esc</kbd></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Show shortcuts</span>
+                        <span><kbd>?</kbd></span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Send message</span>
+                        <span><kbd>Enter</kbd></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="modal-overlay" id="themeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-palette"></i> Themes</h3>
+                <button class="modal-close" onclick="closeModal('themeModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="theme-grid">
+                <button onclick="applyTheme('default'); setActiveTheme(this)" class="theme-btn theme-default">Default</button>
+                <button onclick="applyTheme('ocean'); setActiveTheme(this)" class="theme-btn theme-ocean">Ocean</button>
+                <button onclick="applyTheme('forest'); setActiveTheme(this)" class="theme-btn theme-forest">Forest</button>
+                <button onclick="applyTheme('sunset'); setActiveTheme(this)" class="theme-btn theme-sunset">Sunset</button>
+                <button onclick="applyTheme('midnight'); setActiveTheme(this)" class="theme-btn theme-midnight">Midnight</button>
+                <button onclick="applyTheme('light'); setActiveTheme(this)" class="theme-btn theme-light">Light</button>
+                <button onclick="applyTheme('purple'); setActiveTheme(this)" class="theme-btn theme-purple">Purple</button>
+                <button onclick="applyTheme('nord'); setActiveTheme(this)" class="theme-btn theme-nord">Nord</button>
+                <button onclick="applyTheme('dracula'); setActiveTheme(this)" class="theme-btn theme-dracula">Dracula</button>
+                <button onclick="applyTheme('monokai'); setActiveTheme(this)" class="theme-btn theme-monokai">Monokai</button>
+                <button onclick="applyTheme('gruvbox'); setActiveTheme(this)" class="theme-btn theme-gruvbox">Gruvbox</button>
+                <button onclick="applyTheme('solarized'); setActiveTheme(this)" class="theme-btn theme-solarized">Solarized</button>
+            </div>
+            </div>
+        </div>
+    </div>
+    <div id="toast-container" class="toast-container"></div>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

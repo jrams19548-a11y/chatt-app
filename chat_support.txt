@@ -1,0 +1,1 @@
+{"id": 0, "text": "Hi", "image": null, "timestamp": "2025-12-10 01:04 PM", "sender": "CreeperCast5008", "room": "support", "edited": false}

@@ -1,0 +1,2 @@
+# Format: username|friend_username|status
+CreeperCast500|CreeperCast5008|accepted

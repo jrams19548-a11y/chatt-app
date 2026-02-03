@@ -1,0 +1,14 @@
+# List of profane words to filter
+# One word per line
+nigger
+beaner
+sigma
+skibidi
+rizz
+mewing
+mew
+J.J.
+JJ
+Jesse Ramsey
+Jesse
+j j

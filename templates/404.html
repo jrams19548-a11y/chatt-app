@@ -1,0 +1,132 @@
+
+{% extends "base.html" %}
+
+{% block title %}404 - Page Not Found{% endblock %}
+
+{% block header_title %}
+<i class="fas fa-exclamation-triangle"></i> 404 Error
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .error-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 60vh;
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .error-icon {
+        font-size: 120px;
+        color: var(--accent-color);
+        margin-bottom: 30px;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+
+    .error-title {
+        font-size: 48px;
+        font-weight: 700;
+        margin-bottom: 16px;
+        color: var(--text-color);
+    }
+
+    .error-subtitle {
+        font-size: 24px;
+        color: var(--text-muted);
+        margin-bottom: 30px;
+    }
+
+    .error-message {
+        font-size: 16px;
+        color: var(--text-muted);
+        margin-bottom: 40px;
+        max-width: 500px;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .error-remark {
+        margin-top: 60px;
+        padding: 20px 30px;
+        background: var(--card-bg);
+        border-left: 4px solid var(--accent-color);
+        border-radius: var(--radius-md);
+        font-style: italic;
+        color: var(--text-muted);
+        max-width: 600px;
+    }
+
+    .error-remark::before {
+        content: '"';
+        font-size: 40px;
+        color: var(--accent-color);
+        opacity: 0.3;
+        margin-right: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-icon">
+        <i class="fas fa-ghost"></i>
+    </div>
+    
+    <h1 class="error-title">404</h1>
+    <h2 class="error-subtitle">Page Not Found</h2>
+    
+    <p class="error-message">
+        Oops! The page you're looking for seems to have vanished into the digital void. 
+        Maybe it never existed, or perhaps it's just hiding from you.
+    </p>
+    
+    <div class="error-actions">
+        <a href="{{ url_for('home') }}" class="btn btn-primary">
+            <i class="fas fa-home"></i> Go Home
+        </a>
+        <a href="{{ url_for('channel', room='general') }}" class="btn btn-secondary">
+            <i class="fas fa-hashtag"></i> Visit General
+        </a>
+    </div>
+    
+    <div class="error-remark" id="funny-remark">
+        Loading wisdom...
+    </div>
+</div>
+
+<script>
+    const funnyRemarks = [
+        "This page is more elusive than my motivation on a Monday morning.",
+        "Fun fact: This page exists in an alternate universe. Just not this one.",
+        "404 errors are like my gym membership - I know they exist, but I never use them.",
+        "The page you're looking for is on vacation. Permanently.",
+        "This page went out for milk and never came back.",
+        "Congratulations! You found the secret void of nothingness.",
+        "This page is currently playing hide and seek. It's winning.",
+        "Error 404: Page not found. Error 405: My desire to find it also not found.",
+        "This page ghosted you harder than my last date.",
+        "The page you requested has been abducted by aliens. We're investigating.",
+        "This page exists in the same place as my free time - nowhere.",
+        "Plot twist: The page was inside you all along. Just kidding, it's gone.",
+        "This page is about as real as my chances of winning the lottery.",
+        "404: The number of times I've checked if this page exists.",
+        "This page is in witness protection. For its own safety."
+    ];
+    
+    const randomRemark = funnyRemarks[Math.floor(Math.random() * funnyRemarks.length)];
+    document.getElementById('funny-remark').textContent = randomRemark;
+</script>
+{% endblock %}

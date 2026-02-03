@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}AppleBox - {{ user_data.get('display_name', username) }}{% endblock %}
+
+{% block header_title %}
+<i class="fas fa-user"></i> {{ user_data.get('display_name', username) }}'s Profile
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .profile-banner {
+        height: 120px;
+        background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        position: relative;
+    }
+
+    .profile-main {
+        background: var(--card-bg);
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        border: 1px solid var(--border-color);
+        border-top: none;
+        padding: 20px;
+        padding-top: 60px;
+        position: relative;
+    }
+
+    .profile-avatar-wrapper {
+        position: absolute;
+        top: -60px;
+        left: 24px;
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: var(--radius-full);
+        border: 6px solid var(--card-bg);
+        object-fit: cover;
+        background: var(--card-bg);
+    }
+
+    .profile-status {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        width: 24px;
+        height: 24px;
+        background: var(--online-color);
+        border: 4px solid var(--card-bg);
+        border-radius: var(--radius-full);
+    }
+
+    .profile-status.offline {
+        background: var(--offline-color);
+    }
+
+    .profile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .profile-info h1 {
+        font-size: 1.8rem;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .profile-username {
+        color: var(--text-muted);
+        font-size: 1rem;
+        margin-bottom: 12px;
+    }
+
+    .profile-role {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: var(--radius-full);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .role-owner { background: linear-gradient(135deg, #f5af19, #f12711); color: white; }
+    .role-co-owner { background: linear-gradient(135deg, #8e2de2, #4a00e0); color: white; }
+    .role-admin { background: linear-gradient(135deg, #11998e, #38ef7d); color: white; }
+    .role-mod { background: linear-gradient(135deg, #3494e6, #ec6ead); color: white; }
+    .role-developer { background: linear-gradient(135deg, #00b4db, #0083b0); color: white; }
+    .role-regular { background: var(--input-bg); color: var(--text-color); }
+
+    .profile-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .profile-section {
+        margin-top: 24px;
+    }
+
+    .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .profile-bio {
+        background: var(--input-bg);
+        padding: 20px;
+        border-radius: var(--radius-md);
+        line-height: 1.8;
+        white-space: pre-wrap;
+        font-size: 15px;
+        letter-spacing: 0.3px;
+    }
+
+    .profile-bio.empty {
+        color: var(--text-muted);
+        font-style: italic;
+    }
+
+    .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+        margin-top: 24px;
+    }
+
+    .stat-card {
+        background: var(--input-bg);
+        padding: 16px;
+        border-radius: var(--radius-md);
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--accent-color);
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-top: 4px;
+    }
+
+    .mutual-friends {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 16px;
+    }
+
+    .mutual-friend {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        background: var(--input-bg);
+        border-radius: var(--radius-full);
+        text-decoration: none;
+        color: inherit;
+        transition: all var(--transition-fast);
+    }
+
+    .mutual-friend:hover {
+        background: var(--card-bg);
+        text-decoration: none;
+    }
+
+    .mutual-friend img {
+        width: 24px;
+        height: 24px;
+        border-radius: var(--radius-full);
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 24px;
+        color: var(--accent-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Badges */
+    .profile-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .badge-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        background: var(--input-bg);
+        border-radius: var(--radius-full);
+        font-size: 12px;
+    }
+
+    .badge-item i {
+        color: var(--accent-color);
+    }
+
+    /* Status badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: var(--radius-full);
+        font-size: 12px;
+        font-weight: 500;
+        margin-left: 8px;
+    }
+
+    .status-badge.suspended {
+        background: rgba(240, 71, 71, 0.2);
+        color: var(--danger-color);
+    }
+
+    .status-badge.muted {
+        background: rgba(250, 166, 26, 0.2);
+        color: var(--warning-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-banner"></div>
+    <div class="profile-main">
+        <div class="profile-avatar-wrapper">
+            <img src="{{ user_data.get('profile_pic') or 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + username }}" alt="Avatar" class="profile-avatar">
+            <span class="profile-status {% if username not in active_users.get('general', []) and username not in active_users.get('random', []) and username not in active_users.get('support', []) %}offline{% endif %}"></span>
+        </div>
+
+        <div class="profile-header">
+            <div class="profile-info">
+                <h1>
+                    {{ user_data.get('display_name', username) }}
+                    {% if user_data.get('is_suspended') %}
+                    <span class="status-badge suspended"><i class="fas fa-ban"></i> Suspended</span>
+                    {% endif %}
+                    {% if user_data.get('is_muted') %}
+                    <span class="status-badge muted"><i class="fas fa-volume-mute"></i> Muted</span>
+                    {% endif %}
+                </h1>
+                <div class="profile-username">@{{ username }}</div>
+                {% set role = user_data.get('role', 'Regular User') %}
+                <span class="profile-role role-{{ role|lower|replace(' ', '-') }}">
+                    <i class="fas fa-{% if role == 'Owner' %}crown{% elif role == 'Co-owner' %}gem{% elif role == 'Admin' %}shield-alt{% elif role == 'Mod' %}gavel{% elif role == 'Developer' %}code{% else %}user{% endif %}"></i>
+                    {{ role }}
+                </span>
+            </div>
+
+            {% if current_user.id != username %}
+            <div class="profile-actions">
+                {% if username not in friends %}
+                <form method="POST" action="{{ url_for('send_friend_request', username=username) }}">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Add Friend
+                    </button>
+                </form>
+                {% else %}
+                <a href="{{ url_for('direct_message', username=username) }}" class="btn btn-primary">
+                    <i class="fas fa-comment"></i> Send Message
+                </a>
+                <button class="btn btn-secondary" onclick="showToast('Already friends!', 'success')">
+                    <i class="fas fa-user-check"></i> Friends
+                </button>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="profile-section">
+            <div class="section-title">
+                <i class="fas fa-info-circle"></i> About
+            </div>
+            <div class="profile-bio {% if not user_data.get('bio') or user_data.get('bio') == 'No bio provided.' %}empty{% endif %}">
+                {{ user_data.get('bio', 'No bio provided.') }}
+            </div>
+        </div>
+
+        <div class="profile-stats">
+            <div class="stat-card">
+                <div class="stat-value">
+                    {% if username in active_users.get('general', []) or username in active_users.get('random', []) or username in active_users.get('support', []) %}
+                    <i class="fas fa-circle" style="color: var(--online-color); font-size: 0.8em;"></i>
+                    {% else %}
+                    <i class="fas fa-circle" style="color: var(--offline-color); font-size: 0.8em;"></i>
+                    {% endif %}
+                </div>
+                <div class="stat-label">
+                    {% if username in active_users.get('general', []) or username in active_users.get('random', []) or username in active_users.get('support', []) %}
+                    Currently Online
+                    {% else %}
+                    Offline
+                    {% endif %}
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ friends|length if friends else 0 }}</div>
+                <div class="stat-label">Friends</div>
+            </div>
+        </div>
+
+        <a href="{{ url_for('home') }}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}

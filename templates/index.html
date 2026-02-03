@@ -1,0 +1,1452 @@
+{% extends "base.html" %}
+
+{% block title %}AppleBox - Home{% endblock %}
+
+{% block header_title %}
+<i class="fas fa-home"></i> Home
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .page-content {
+        padding: 0 !important;
+    }
+
+    /* Tabs at top */
+    .tabs-container {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        background: var(--header-bg);
+        padding: 12px 24px 12px 24px;
+        border-radius:10px;
+    }
+
+    /* Tab Navigation */
+    .tabs {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        background: transparent;
+        padding: 0;
+        border-radius: 0;
+    }
+
+    .tab {
+        padding: 12px 20px;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        border-radius: 0;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all var(--transition-fast);
+        position: relative;
+    }
+
+    .tab:hover {
+        background: rgba(255,255,255,0.05);
+        color: var(--text-color);
+        border-bottom-color: var(--text-muted);
+        border-radius: 5px;
+    }
+
+    .tab.active {
+        background: transparent;
+        color: var(--accent-color);
+        border-bottom-color: var(--accent-color);
+        border-radius:5px;
+    }
+
+    .tab .badge {
+        background: var(--danger-color);
+        color: white;
+        font-size: 11px;
+        min-width: 18px;
+        height: 18px;
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 5px;
+    }
+
+    .tab.active .badge {
+        background: white;
+        color: var(--accent-color);
+    }
+
+    .tab-content {
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Channel Cards */
+    .channels-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+    }
+
+    .channel-card {
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        transition: all var(--transition-normal);
+        cursor: pointer;
+    }
+
+    .channel-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--accent-color);
+    }
+
+    .channel-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--accent-color);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: white;
+        flex-shrink: 0;
+    }
+
+    .channel-icon.general { background: linear-gradient(135deg, #7289da, #5865f2); }
+    .channel-icon.random { background: linear-gradient(135deg, #faa61a, #f57c00); }
+    .channel-icon.support { background: linear-gradient(135deg, #43b581, #2e7d32); }
+    .channel-icon.admin { background: linear-gradient(135deg, #6a11cb, #2e2e2e); }
+
+    .channel-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .channel-name {
+        font-weight: 600;
+        font-size: 16px;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .channel-description {
+        color: var(--text-muted);
+        font-size: 14px;
+        margin-bottom: 8px;
+        line-height: 1.6;
+        letter-spacing: 0.2px;
+    }
+
+    .channel-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .channel-meta span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .channel-meta .online {
+        color: var(--success-color);
+    }
+/* Modern Role Dropdown Styling */
+.role-dropdown {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 200px;
+}
+
+.role-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: #2d3748;
+    border: 2px solid #4a5568;
+    border-radius: 8px;
+    color: #e2e8f0;
+    padding: 10px 40px 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23718096' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+}
+
+.role-select:hover {
+    border-color: #63b3ed;
+    box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.1);
+}
+
+.role-select:focus {
+    outline: none;
+    border-color: #63b3ed;
+    box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.3);
+}
+
+.role-select option {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    padding: 10px;
+    font-weight: 500;
+}
+
+/* Role-specific styling */
+.role-select[data-role="Owner"] {
+    border-color: #ed8936;
+    background-color: rgba(237, 137, 54, 0.1);
+}
+
+.role-select[data-role="Admin"] {
+    border-color: #e53e3e;
+    background-color: rgba(229, 62, 62, 0.1);
+}
+
+.role-select[data-role="Mod"] {
+    border-color: #38b2ac;
+    background-color: rgba(56, 178, 172, 0.1);
+}
+
+.role-select[data-role="Developer"] {
+    border-color: #805ad5;
+    background-color: rgba(128, 90, 213, 0.1);
+}
+
+.role-select[data-role="Co-owner"] {
+    border-color: #d69e2e;
+    background-color: rgba(214, 158, 46, 0.1);
+}
+
+.role-select[data-role="Regular User"] {
+    border-color: #4a5568;
+    background-color: rgba(74, 85, 104, 0.1);
+}
+
+/* Form container styling */
+.role-form {
+    background: #1a202c;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px 0;
+    border: 1px solid #2d3748;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.role-form:hover {
+    border-color: #4a5568;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Submit button styling */
+.role-submit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.role-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.role-submit:active {
+    transform: translateY(0);
+}
+
+/* Status indicators */
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-left: 8px;
+}
+
+.status-badge.muted {
+    background-color: #e53e3e;
+    color: white;
+}
+
+.status-badge.suspended {
+    background-color: #f56565;
+    color: white;
+}
+
+.status-badge.active {
+    background-color: #38a169;
+    color: white;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .role-dropdown {
+        max-width: 100%;
+    }
+    
+    .role-select {
+        padding: 12px 40px 12px 16px;
+        font-size: 16px; /* Better mobile touch target */
+    }
+}
+    /* Announcements */
+    .announcements-container {
+        max-width: 700px;
+    }
+
+    .announcement-form {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: var(--radius-lg);
+        margin-bottom: 20px;
+        border: 1px solid var(--border-color);
+    }
+
+    .announcement-form textarea {
+        width: 100%;
+        min-height: 100px;
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 12px;
+        color: var(--text-color);
+        resize: vertical;
+        font-family: inherit;
+        margin-bottom: 12px;
+    }
+
+    .announcement-form textarea:focus {
+        outline: none;
+        border-color: var(--accent-color);
+    }
+
+    .announcement {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: var(--radius-lg);
+        margin-bottom: 16px;
+        border: 1px solid var(--border-color);
+        border-left: 4px solid var(--accent-color);
+    }
+
+    .announcement-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    .announcement-author {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: var(--accent-color);
+    }
+
+    .announcement-time {
+        color: var(--text-muted);
+        font-size: 13px;
+    }
+
+    .announcement-text {
+        line-height: 1.7;
+        white-space: pre-wrap;
+        font-size: 15px;
+        letter-spacing: 0.2px;
+    }
+
+    /* Friends List */
+    .friends-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+    }
+
+    .friend-section {
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        border: 1px solid var(--border-color);
+    }
+
+    .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .friend-request {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: var(--input-bg);
+        border-radius: var(--radius-md);
+        margin-bottom: 10px;
+    }
+
+    .friend-request-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-full);
+        object-fit: cover;
+    }
+
+    .friend-request-info {
+        flex: 1;
+    }
+
+    .friend-request-name {
+        font-weight: 500;
+    }
+
+    .friend-request-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .friend-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border-radius: var(--radius-md);
+        transition: background var(--transition-fast);
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .friend-item:hover {
+        background: var(--input-bg);
+        text-decoration: none;
+    }
+
+    .friend-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-full);
+        object-fit: cover;
+        position: relative;
+    }
+
+    .friend-status {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 12px;
+        height: 12px;
+        border-radius: var(--radius-full);
+        background: var(--offline-color);
+        border: 2px solid var(--card-bg);
+    }
+
+    .friend-status.online {
+        background: var(--online-color);
+    }
+
+    .friend-name {
+        font-weight: 500;
+    }
+
+    .friend-username {
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .friend-actions {
+        margin-left: auto;
+        display: flex;
+        gap: 4px;
+    }
+
+    /* Profile Section */
+    .profile-section {
+        max-width: 600px;
+    }
+
+    .profile-card {
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 20px;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .profile-avatar-large {
+        width: 80px;
+        height: 80px;
+        border-radius: var(--radius-full);
+        object-fit: cover;
+    }
+
+    .profile-details h3 {
+        margin-bottom: 4px;
+    }
+
+    .profile-role {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        background: var(--accent-color);
+        border-radius: var(--radius-full);
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    /* Settings */
+    .settings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .settings-section {
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        border: 1px solid var(--border-color);
+    }
+
+    .settings-section h4 {
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--accent-color);
+    }
+
+    .theme-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+    }
+
+    .theme-btn {
+        padding: 16px 12px;
+        border: 2px solid transparent;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all var(--transition-fast);
+        text-align: center;
+    }
+
+    .theme-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .theme-btn.active {
+        border-color: white;
+    }
+
+    .theme-default { background: linear-gradient(135deg, #1e1e2e, #2d2d3d); color: white; }
+    .theme-ocean { background: linear-gradient(135deg, #1a4b84, #2d89c8); color: white; }
+    .theme-forest { background: linear-gradient(135deg, #2d5a27, #45894d); color: white; }
+    .theme-sunset { background: linear-gradient(135deg, #cb2d3e, #ef473a); color: white; }
+    .theme-midnight { background: linear-gradient(135deg, #232526, #414345); color: white; }
+    .theme-light { background: linear-gradient(135deg, #f5f5f5, #ffffff); color: #333; border: 1px solid #ddd; }
+    .theme-purple { background: linear-gradient(135deg, #2d1b4e, #9b59b6); color: white; }
+    .theme-nord { background: linear-gradient(135deg, #2e3440, #88c0d0); color: white; }
+    .theme-dracula { background: linear-gradient(135deg, #282a36, #bd93f9); color: white; }
+    .theme-monokai { background: linear-gradient(135deg, #272822, #66d9ef); color: white; }
+    .theme-gruvbox { background: linear-gradient(135deg, #282828, #8ec07c); color: white; }
+    .theme-solarized { background: linear-gradient(135deg, #002b36, #268bd2); color: white; }
+
+    /* Admin Panel */
+    .admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 16px;
+    }
+
+    .user-card {
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        border: 1px solid var(--border-color);
+    }
+
+    .user-card-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .user-card-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-full);
+        object-fit: cover;
+    }
+
+    .user-card-info {
+        flex: 1;
+    }
+
+    .user-card-name {
+        font-weight: 600;
+    }
+
+    .user-card-display {
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .user-card-role {
+        display: inline-flex;
+        padding: 3px 8px;
+        background: var(--accent-color);
+        border-radius: var(--radius-sm);
+        font-size: 11px;
+        font-weight: 500;
+        margin-top: 4px;
+    }
+
+    .user-card-actions {
+        border-top: 1px solid var(--border-color);
+        padding-top: 16px;
+    }
+
+    .role-select {
+        width: 100%;
+        padding: 8px 12px;
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        color: var(--text-color);
+        margin-bottom: 12px;
+        cursor: pointer;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .action-buttons .btn {
+        flex: 1;
+    }
+
+    /* DM List */
+    .dm-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .dm-card {
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        padding: 16px;
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        transition: all var(--transition-fast);
+        cursor: pointer;
+    }
+
+    .dm-card:hover {
+        border-color: var(--accent-color);
+    }
+
+    .dm-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-full);
+        object-fit: cover;
+    }
+
+    .dm-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .dm-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 4px;
+    }
+
+    .dm-name {
+        font-weight: 600;
+    }
+
+    .dm-time {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .dm-preview {
+        color: var(--text-muted);
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .dm-actions {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Empty States */
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--text-muted);
+    }
+
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .empty-state h4 {
+        margin-bottom: 8px;
+        color: var(--text-color);
+    }
+
+    /* Debug Section */
+    .debug-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+
+    .debug-btn {
+        padding: 14px;
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        transition: all var(--transition-fast);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .debug-btn:hover {
+        transform: scale(1.02);
+    }
+
+    .debug-info {
+        background: #0d0d0d;
+        padding: 16px;
+        border-radius: var(--radius-md);
+        font-family: 'Monaco', 'Consolas', monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        overflow-x: auto;
+    }
+
+    @keyframes earthquake {
+        0% { transform: translate(1px, 1px) rotate(0deg); }
+        10% { transform: translate(-1px, -2px) rotate(-1deg); }
+        20% { transform: translate(-3px, 0px) rotate(1deg); }
+        30% { transform: translate(3px, 2px) rotate(0deg); }
+        40% { transform: translate(1px, -1px) rotate(1deg); }
+        50% { transform: translate(-1px, 2px) rotate(-1deg); }
+        60% { transform: translate(-3px, 1px) rotate(0deg); }
+        70% { transform: translate(3px, 1px) rotate(-1deg); }
+        80% { transform: translate(-1px, -1px) rotate(1deg); }
+        90% { transform: translate(1px, 2px) rotate(0deg); }
+        100% { transform: translate(1px, -2px) rotate(-1deg); }
+    }
+
+    .earthquake {
+        animation: earthquake 0.5s infinite;
+    }
+
+    /* Status indicators */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: var(--radius-full);
+        font-size: 11px;
+        font-weight: 500;
+    }
+
+    .status-badge.suspended {
+        background: rgba(240, 71, 71, 0.2);
+        color: var(--danger-color);
+    }
+
+    .status-badge.muted {
+        background: rgba(250, 166, 26, 0.2);
+        color: var(--warning-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tabs-container">
+    <!-- Tabs -->
+    <div class="tabs">
+    <button class="tab active" onclick="showTab('channels')">
+        <i class="fas fa-hashtag"></i> Channels
+    </button>
+    <button class="tab" onclick="showTab('announcements')">
+        <i class="fas fa-bullhorn"></i> Announcements
+    </button>
+    <button class="tab" onclick="showTab('friends')">
+        <i class="fas fa-user-friends"></i> Friends
+        {% if friend_requests|default([])|length > 0 %}
+        <span class="badge">{{ friend_requests|length }}</span>
+        {% endif %}
+    </button>
+    <button class="tab" onclick="showTab('profile')">
+        <i class="fas fa-user"></i> Profile
+    </button>
+    <button class="tab" onclick="showTab('settings')">
+        <i class="fas fa-cog"></i> Settings
+    </button>
+    {% if current_user.role in ['Owner', 'Co-owner', 'Admin'] %}
+    <button class="tab" onclick="showTab('admin')">
+        <i class="fas fa-shield-alt"></i> Admin
+    </button>
+    {% endif %}
+    {% if current_user.role in ['Developer', 'Owner', 'Co-owner', 'Admin'] %}
+    <button class="tab" onclick="showTab('debug')">
+        <i class="fas fa-bug"></i> Debug
+    </button>
+    {% endif %}
+    <button class="tab" onclick="showTab('dms')">
+        <i class="fas fa-envelope"></i> Messages
+    </button>
+</div>
+</div>
+
+<div style="padding: 24px;">
+<!-- Channels Tab -->
+<div id="channels" class="tab-content active">
+    <div class="channels-grid">
+        <a href="{{ url_for('channel', room='general') }}" class="channel-card" style="text-decoration: none; color: inherit;">
+            <div class="channel-icon general">
+                <i class="fas fa-hashtag"></i>
+            </div>
+            <div class="channel-info">
+                <div class="channel-name">
+                    # general
+                </div>
+                <div class="channel-description">General discussion channel for everyone</div>
+                <div class="channel-meta">
+                    <span class="online">
+                        <i class="fas fa-circle" style="font-size: 8px;"></i>
+                        {{ active_users.get('general', [])|length }} online
+                    </span>
+                    <span>
+                        <i class="fas fa-comment"></i>
+                        {{ chat_rooms.get('general', [])|length }} messages
+                    </span>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ url_for('channel', room='random') }}" class="channel-card" style="text-decoration: none; color: inherit;">
+            <div class="channel-icon random">
+                <i class="fas fa-dice"></i>
+            </div>
+            <div class="channel-info">
+                <div class="channel-name">
+                    # random
+                </div>
+                <div class="channel-description">Random chat and fun discussions</div>
+                <div class="channel-meta">
+                    <span class="online">
+                        <i class="fas fa-circle" style="font-size: 8px;"></i>
+                        {{ active_users.get('random', [])|length }} online
+                    </span>
+                    <span>
+                        <i class="fas fa-comment"></i>
+                        {{ chat_rooms.get('random', [])|length }} messages
+                    </span>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ url_for('channel', room='support') }}" class="channel-card" style="text-decoration: none; color: inherit;">
+            <div class="channel-icon support">
+                <i class="fas fa-life-ring"></i>
+            </div>
+            <div class="channel-info">
+                <div class="channel-name">
+                    # support
+                </div>
+                <div class="channel-description">Get help and support from the community</div>
+                <div class="channel-meta">
+                    <span class="online">
+                        <i class="fas fa-circle" style="font-size: 8px;"></i>
+                        {{ active_users.get('support', [])|length }} online
+                    </span>
+                    <span>
+                        <i class="fas fa-comment"></i>
+                        {{ chat_rooms.get('support', [])|length }} messages
+                    </span>
+                </div>
+            </div>
+        </a>
+        {% if current_user.role in ['Developer', 'Owner', 'Co-owner', 'Admin'] %}
+        <a href="{{ url_for('channel', room='admin') }}" class="channel-card" style="text-decoration: none; color: inherit;">
+            <div class="channel-icon admin">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <div class="channel-info">
+                <div class="channel-name">
+                    # admin
+                </div>
+                <div class="channel-description">Admin chat for moderation</div>
+                <div class="channel-meta">
+                    <span class="online">
+                        <i class="fas fa-circle" style="font-size: 8px;"></i>
+                        {{ active_users.get('admin', [])|length }} online
+                    </span>
+                    <span>
+                        <i class="fas fa-comment"></i>
+                        {{ chat_rooms.get('admin', [])|length }} messages
+                    </span>
+                </div>
+            </div>
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Announcements Tab -->
+<div id="announcements" class="tab-content">
+    <div class="announcements-container">
+        {% if current_user.role in ['Owner', 'Co-owner', 'Admin'] %}
+        <div class="announcement-form">
+            <form method="POST" action="{{ url_for('add_announcement') }}">
+                <textarea name="announcement" placeholder="Write an announcement..." class="form-input" required></textarea>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-bullhorn"></i> Post Announcement
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        {% if announcements %}
+            {% for announcement in announcements|reverse %}
+            <div class="announcement">
+                <div class="announcement-header">
+                    <span class="announcement-author">
+                        <i class="fas fa-megaphone"></i>
+                        @{{ announcement.author }}
+                    </span>
+                    <span class="announcement-time">{{ announcement.timestamp }}</span>
+                </div>
+                <div class="announcement-text">{{ announcement.text }}</div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-bullhorn"></i>
+            <h4>No Announcements</h4>
+            <p>There are no announcements yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Friends Tab -->
+<div id="friends" class="tab-content">
+    <div class="friends-container">
+        <!-- Friend Requests -->
+        <div class="friend-section">
+            <div class="section-title">
+                <i class="fas fa-user-plus"></i>
+                Friend Requests
+                {% if friend_requests|default([])|length > 0 %}
+                <span class="badge" style="background: var(--danger-color); color: white; padding: 2px 8px; border-radius: var(--radius-full); font-size: 12px;">{{ friend_requests|length }}</span>
+                {% endif %}
+            </div>
+            {% if friend_requests|default([]) %}
+                {% for request in friend_requests %}
+                <div class="friend-request">
+                    <img src="{{ users[request].get('profile_pic') or 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + request }}" alt="Avatar" class="friend-request-avatar">
+                    <div class="friend-request-info">
+                        <div class="friend-request-name">{{ users[request].display_name }}</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">@{{ request }}</div>
+                    </div>
+                    <div class="friend-request-actions">
+                        <form method="POST" action="{{ url_for('respond_friend_request') }}" style="display: inline;">
+                            <input type="hidden" name="username" value="{{ request }}">
+                            <button type="submit" name="action" value="accept" class="btn btn-success btn-sm">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </form>
+                        <form method="POST" action="{{ url_for('respond_friend_request') }}" style="display: inline;">
+                            <input type="hidden" name="username" value="{{ request }}">
+                            <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div style="text-align: center; color: var(--text-muted); padding: 20px;">
+                No pending requests
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Your Friends -->
+        <div class="friend-section" style="flex: 2;">
+            <div class="section-title">
+                <i class="fas fa-users"></i>
+                Your Friends ({{ friends|default([])|length }})
+            </div>
+            {% if friends|default([]) %}
+                {% for friend in friends %}
+                <a href="{{ url_for('view_profile', username=friend) }}" class="friend-item">
+                    <div style="position: relative;">
+                        <img src="{{ users[friend].get('profile_pic') or 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + friend }}" alt="Avatar" class="friend-avatar">
+                        <span class="friend-status {% if friend in active_users.get('general', []) or friend in active_users.get('random', []) or friend in active_users.get('support', []) %}online{% endif %}"></span>
+                    </div>
+                    <div>
+                        <div class="friend-name">{{ users[friend].display_name }}</div>
+                        <div class="friend-username">@{{ friend }}</div>
+                    </div>
+                    <div class="friend-actions">
+                        <a href="{{ url_for('direct_message', username=friend) }}" class="btn btn-sm btn-secondary" onclick="event.stopPropagation();">
+                            <i class="fas fa-comment"></i>
+                        </a>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-user-friends"></i>
+                <h4>No Friends Yet</h4>
+                <p>Visit other users' profiles to send friend requests!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Profile Tab -->
+<div id="profile" class="tab-content">
+    <div class="profile-section">
+        <div class="profile-card">
+            <div class="profile-header">
+                <img src="{{ users[current_user.id].get('profile_pic') or 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + current_user.id }}" alt="Avatar" class="profile-avatar-large">
+                <div class="profile-details">
+                    <h3>{{ current_user.display_name }}</h3>
+                    <div style="color: var(--text-muted); margin-bottom: 8px;">@{{ current_user.id }}</div>
+                    <span class="profile-role">
+                        <i class="fas fa-shield-alt"></i>
+                        {{ current_user.role }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">
+                    <i class="fas fa-pen"></i> Your Bio
+                </h4>
+            </div>
+            <form method="POST" action="{{ url_for('update_bio') }}">
+                <textarea name="bio" class="form-input" placeholder="Tell us about yourself..." style="min-height: 120px;">{{ users[current_user.id].get('bio', '') }}</textarea>
+                <button type="submit" class="btn btn-primary" style="margin-top: 12px;">
+                    <i class="fas fa-save"></i> Update Bio
+                </button>
+            </form>
+        </div>
+    </div>
+    
+</div>
+
+<!-- Settings Tab -->
+<div id="settings" class="tab-content">
+    <div class="settings-grid">
+        <!-- Theme Settings -->
+        <div class="settings-section">
+            <h4><i class="fas fa-palette"></i> Theme</h4>
+            <div class="theme-grid">
+                <button onclick="applyTheme('default'); setActiveTheme(this)" class="theme-btn theme-default">Default</button>
+                <button onclick="applyTheme('ocean'); setActiveTheme(this)" class="theme-btn theme-ocean">Ocean</button>
+                <button onclick="applyTheme('forest'); setActiveTheme(this)" class="theme-btn theme-forest">Forest</button>
+                <button onclick="applyTheme('sunset'); setActiveTheme(this)" class="theme-btn theme-sunset">Sunset</button>
+                <button onclick="applyTheme('midnight'); setActiveTheme(this)" class="theme-btn theme-midnight">Midnight</button>
+                <button onclick="applyTheme('light'); setActiveTheme(this)" class="theme-btn theme-light">Light</button>
+                <button onclick="applyTheme('purple'); setActiveTheme(this)" class="theme-btn theme-purple">Purple</button>
+                <button onclick="applyTheme('nord'); setActiveTheme(this)" class="theme-btn theme-nord">Nord</button>
+                <button onclick="applyTheme('dracula'); setActiveTheme(this)" class="theme-btn theme-dracula">Dracula</button>
+                <button onclick="applyTheme('monokai'); setActiveTheme(this)" class="theme-btn theme-monokai">Monokai</button>
+                <button onclick="applyTheme('gruvbox'); setActiveTheme(this)" class="theme-btn theme-gruvbox">Gruvbox</button>
+                <button onclick="applyTheme('solarized'); setActiveTheme(this)" class="theme-btn theme-solarized">Solarized</button>
+            </div>
+        </div>
+
+        <!-- Profile Settings -->
+        <div class="settings-section">
+            <h4><i class="fas fa-user-edit"></i> Profile</h4>
+            <form method="POST" action="{{ url_for('settings') }}" class="settings-form">
+                <input type="hidden" name="action" value="profile">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" name="new_username" value="{{ current_user.id }}" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Display Name</label>
+                    <input type="text" name="new_display_name" value="{{ current_user.display_name }}" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Profile Picture URL</label>
+                    <input type="url" name="profile_pic" value="{{ users[current_user.id].get('profile_pic', '') }}" class="form-input" placeholder="https://...">
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </form>
+        </div>
+
+        <!-- Password Settings -->
+        <div class="settings-section">
+            <h4><i class="fas fa-lock"></i> Password</h4>
+            <form method="POST" action="{{ url_for('settings') }}" class="settings-form">
+                <input type="hidden" name="action" value="password">
+                <div class="form-group">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" name="current_password" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <input type="password" name="new_password" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input type="password" name="confirm_password" class="form-input" required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-key"></i> Change Password
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Tab -->
+{% if current_user.role in ['Owner', 'Co-owner', 'Admin'] %}
+<div id="admin" class="tab-content">
+    <h3 style="margin-bottom: 20px;">
+        <i class="fas fa-users-cog"></i> User Management
+    </h3>
+    <div class="admin-grid">
+        {% for username, data in users.items() %}
+        <div class="user-card">
+            <div class="user-card-header">
+                <img src="{{ data.get('profile_pic') or 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + username }}" alt="Avatar" class="user-card-avatar">
+                <div class="user-card-info">
+                    <div class="user-card-name">{{ username }}</div>
+                    <div class="user-card-display">{{ data.display_name }}</div>
+                    <div class="user-card-role">{{ data.role }}</div>
+                </div>
+            </div>
+            {% if data.get('is_suspended') or data.get('is_muted') %}
+            <div style="margin-bottom: 12px;">
+                {% if data.get('is_suspended') %}
+                <span class="status-badge suspended"><i class="fas fa-ban"></i> Suspended</span>
+                {% endif %}
+                {% if data.get('is_muted') %}
+                <span class="status-badge muted"><i class="fas fa-volume-mute"></i> Muted</span>
+                {% endif %}
+            </div>
+            {% endif %}
+            <!-- Replace the existing user card actions section with this -->
+{% if username != current_user.id %}
+<div class="user-card-actions">
+    <div class="role-dropdown">
+        <form method="POST" action="{{ url_for('manage_user', username=username) }}">
+            <input type="hidden" name="action" value="role">
+            <select name="role" onchange="this.form.submit()" class="role-select" data-role="{{ data.role }}">
+                {% for role in ['Regular User', 'Mod', 'Admin', 'Co-owner', 'Developer', 'Owner'] %}
+                <option value="{{ role }}" {% if data.role == role %}selected{% endif %}>{{ role }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    <div class="action-buttons">
+        <form method="POST" action="{{ url_for('manage_user', username=username) }}">
+            <input type="hidden" name="action" value="suspend">
+            <button type="submit" class="btn btn-sm {% if data.get('is_suspended') %}btn-success{% else %}btn-danger{% endif %}">
+                <i class="fas {% if data.get('is_suspended') %}fa-unlock{% else %}fa-ban{% endif %}"></i>
+                {{ 'Unsuspend' if data.get('is_suspended') else 'Suspend' }}
+            </button>
+        </form>
+        <form method="POST" action="{{ url_for('manage_user', username=username) }}">
+            <input type="hidden" name="action" value="mute">
+            <button type="submit" class="btn btn-sm {% if data.get('is_muted') %}btn-success{% else %}btn-warning{% endif %}">
+                <i class="fas {% if data.get('is_muted') %}fa-volume-up{% else %}fa-volume-mute{% endif %}"></i>
+                {{ 'Unmute' if data.get('is_muted') else 'Mute' }}
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Debug Tab -->
+{% if current_user.role in ['Developer', 'Owner', 'Co-owner', 'Admin'] %}
+<div id="debug" class="tab-content">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="card-title"><i class="fas fa-magic"></i> Fun Controls</h4>
+        </div>
+        <div class="debug-grid">
+            <button onclick="broadcastTroll('rotate')" class="debug-btn" style="background: #4444ff; color: white;">
+                <i class="fas fa-sync-alt"></i> Flip Screen
+            </button>
+            <button onclick="broadcastTroll('unrotate')" class="debug-btn" style="background: #44ffff; color: black;">
+                <i class="fas fa-undo"></i> Unflip
+            </button>
+            <button onclick="broadcastTroll('invert')" class="debug-btn" style="background: #ff44ff; color: white;">
+                <i class="fas fa-adjust"></i> Invert Colors
+            </button>
+            <button onclick="broadcastTroll('uninvert')" class="debug-btn" style="background: #ffff44; color: black;">
+                <i class="fas fa-palette"></i> Fix Colors
+            </button>
+            <button onclick="broadcastTroll('shake')" class="debug-btn" style="background: #ff8800; color: white;">
+                <i class="fas fa-mountain"></i> Earthquake
+            </button>
+            <button onclick="broadcastTroll('unshake')" class="debug-btn" style="background: #00ff88; color: black;">
+                <i class="fas fa-hand-paper"></i> Stop Shake
+            </button>
+            <button onclick="broadcastTroll('comic')" class="debug-btn" style="background: #ff00ff; color: white;">
+                <i class="fas fa-font"></i> Comic Sans
+            </button>
+            <button onclick="broadcastTroll('uncomic')" class="debug-btn" style="background: #88ff00; color: black;">
+                <i class="fas fa-text-width"></i> Normal Font
+            </button>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+            <h4 class="card-title"><i class="fas fa-info-circle"></i> System Info</h4>
+        </div>
+        <pre class="debug-info">User Agent: {{ request.headers.get('User-Agent') }}
+IP Address: {{ request.remote_addr }}
+Active Users: {{ active_users|length }}
+Total Messages: {{ chat_rooms['general']|length + chat_rooms['random']|length + chat_rooms['support']|length }}</pre>
+    </div>
+</div>
+{% endif %}
+
+<!-- DMs Tab -->
+<div id="dms" class="tab-content">
+    <h3 style="margin-bottom: 20px;">
+        <i class="fas fa-envelope"></i> Recent Messages
+    </h3>
+    <div class="dm-list">
+        {% if dm_messages %}
+            {% for message in dm_messages %}
+            <div class="dm-card" onclick="window.location.href='{{ url_for('direct_message', username=message.recipient if message.sender == current_user.id else message.sender) }}'">
+                {% set other_user = message.recipient if message.sender == current_user.id else message.sender %}
+                <img src="{{ users[other_user].get('profile_pic') or 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + other_user }}" alt="Avatar" class="dm-avatar">
+                <div class="dm-content">
+                    <div class="dm-header">
+                        <span class="dm-name">
+                            {% if message.sender == current_user.id %}
+                            <i class="fas fa-reply" style="color: var(--text-muted); margin-right: 4px;"></i>
+                            {% endif %}
+                            {{ users[other_user].display_name }}
+                        </span>
+                        <span class="dm-time">{{ message.timestamp }}</span>
+                    </div>
+                    <div class="dm-preview">{{ message.text[:50] }}{% if message.text|length > 50 %}...{% endif %}</div>
+                </div>
+                <div class="dm-actions">
+                    <button class="btn btn-sm btn-primary">
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-comments"></i>
+            <h4>No Messages Yet</h4>
+            <p>Start a conversation with your friends!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.getElementById(tabId).classList.add('active');
+        event.target.closest('.tab').classList.add('active');
+        
+        // Save active tab to localStorage
+        localStorage.setItem('activeTab', tabId);
+    }
+
+    function setActiveTheme(btn) {
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    // Restore active tab on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTab = localStorage.getItem('activeTab');
+        if (savedTab && document.getElementById(savedTab)) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(savedTab).classList.add('active');
+            const tabBtn = document.querySelector(`.tab[onclick="showTab('${savedTab}')"]`);
+            if (tabBtn) tabBtn.classList.add('active');
+        }
+
+        // Set active theme button
+        const savedTheme = localStorage.getItem('selectedTheme') || 'default';
+        const themeBtn = document.querySelector(`.theme-${savedTheme}`);
+        if (themeBtn) themeBtn.classList.add('active');
+    });
+
+    // Settings form AJAX
+    document.querySelectorAll('.settings-form').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                showToast(data.message, data.status === 'success' ? 'success' : 'error');
+                if (data.status === 'success') {
+                    setTimeout(() => window.location.reload(), 1000);
+                }
+            } catch (error) {
+                showToast('An error occurred', 'error');
+            }
+        });
+    });
+
+    // Debug functions
+    function broadcastTroll(effect) {
+        fetch('/broadcast_troll', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ effect: effect })
+        });
+    }
+
+    // Listen for troll effects
+    const eventSource = new EventSource('/troll_events');
+    eventSource.onmessage = function(e) {
+        const effect = JSON.parse(e.data).effect;
+        switch(effect) {
+            case 'rotate':
+                document.body.style.transform = 'rotate(180deg)';
+                break;
+            case 'unrotate':
+                document.body.style.transform = '';
+                break;
+            case 'invert':
+                document.documentElement.style.filter = 'invert(100%)';
+                break;
+            case 'uninvert':
+                document.documentElement.style.filter = '';
+                break;
+            case 'shake':
+                document.body.classList.add('earthquake');
+                break;
+            case 'unshake':
+                document.body.classList.remove('earthquake');
+                break;
+            case 'comic':
+                document.body.style.fontFamily = '"Comic Sans MS", cursive';
+                break;
+            case 'uncomic':
+                document.body.style.fontFamily = '';
+                break;
+        }
+    };
+</script>
+{% endblock %}
